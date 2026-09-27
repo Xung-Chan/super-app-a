@@ -13,43 +13,54 @@ const __dirname = path.dirname(__filename);
  * Learn about Re.Pack configuration: https://re-pack.dev/docs/guides/configuration
  */
 
-export default Repack.defineRspackConfig((env) => ({
-  context: __dirname,
-  entry: './index.js',
-  resolve: {
-    ...Repack.getResolveOptions(env.platform, {
-      enablePackageExports: true,
-      preferNativePlatform: true,
-    }),
-  },
-  output: {
-    uniqueName: 'mini_app_a',
-  },
-  module: {
-    rules: [
-      {
-        test: /\.[cm]?[jt]sx?$/,
-        type: 'javascript/auto',
-        use: {
-          loader: '@callstack/repack/babel-swc-loader',
-          parallel: true,
-          options: {},
-        },
-      },
-      ...Repack.getAssetTransformRules(),
-    ],
-  },
-  plugins: [
-    new Repack.RepackPlugin(),
+const GITHUB_REPO_NAME = 'mini-app-a';
+const GITHUB_USER_OR_ORG = 'xung-chan';
+export default Repack.defineRspackConfig(env => {
+  const publicPath = env.dev
+    ? `http://localhost:8082/${env.platform}/`
+    : `https://${GITHUB_USER_OR_ORG}.github.io/${GITHUB_REPO_NAME}/${env.platform}/`;
 
-    new Repack.plugins.ModuleFederationPluginV2({
-      name: 'mini_app_a',
-      filename: "mini_app_a.container.bundle",
-      dts: false,
-      exposes: {
-        './App': './App',
-      },
-      shared: getSharedDependencies({ eager: false })
-    }),
-  ],
-}));
+  return {
+    context: __dirname,
+    entry: './index.js',
+    resolve: {
+      ...Repack.getResolveOptions(env.platform, {
+        enablePackageExports: true,
+        preferNativePlatform: true,
+      }),
+    },
+    output: {
+      uniqueName: 'mini_app_a',
+      clean: true,
+      path: path.resolve(__dirname, `dist/${env.platform}`),
+      publicPath,
+    },
+    module: {
+      rules: [
+        {
+          test: /\.[cm]?[jt]sx?$/,
+          type: 'javascript/auto',
+          use: {
+            loader: '@callstack/repack/babel-swc-loader',
+            parallel: true,
+            options: {},
+          },
+        },
+        ...Repack.getAssetTransformRules(),
+      ],
+    },
+    plugins: [
+      new Repack.RepackPlugin(),
+
+      new Repack.plugins.ModuleFederationPluginV2({
+        name: 'mini_app_a',
+        filename: 'mini_app_a.container.bundle',
+        dts: false,
+        exposes: {
+          './App': './App',
+        },
+        shared: getSharedDependencies({ eager: false }),
+      }),
+    ],
+  };
+});
