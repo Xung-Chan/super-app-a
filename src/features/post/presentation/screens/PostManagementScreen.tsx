@@ -75,7 +75,7 @@ export const PostManagementScreen = () => {
 
   return (
     <View style={styles.screen}>
-      <MiniAppHeader title="Danh sách bài viết" backgroundColor={COLORS.primary} />
+      <MiniAppHeader title="Danh sách " backgroundColor={COLORS.primary} />
 
       <View style={styles.searchWrapper}>
         <View style={styles.searchContainer}>
