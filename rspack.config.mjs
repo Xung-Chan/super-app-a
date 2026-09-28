@@ -13,12 +13,12 @@ const __dirname = path.dirname(__filename);
  * Learn about Re.Pack configuration: https://re-pack.dev/docs/guides/configuration
  */
 
-const GITHUB_REPO_NAME = 'mini-app-a';
+const GITHUB_REPO_NAME = 'Super-App-Showcase';
 const GITHUB_USER_OR_ORG = 'xung-chan';
 export default Repack.defineRspackConfig(env => {
   const publicPath = env.dev
     ? `http://localhost:8082/${env.platform}/`
-    : `https://${GITHUB_USER_OR_ORG}.github.io/${GITHUB_REPO_NAME}/${env.platform}/`;
+    : `https://${GITHUB_USER_OR_ORG}.github.io/${GITHUB_REPO_NAME}/mini_app_a/${env.platform}/`;
 
   return {
     context: __dirname,
