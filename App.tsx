@@ -13,8 +13,10 @@
 import { Provider } from 'react-redux';
 import AppContainer from './src/core/navigation/AppNavigation';
 import { store } from './src/core/store';
+import { testDeeplink } from './src/testDeeplink';
 
 const App = () => {
+    testDeeplink()
     return (
         <Provider store={store}>
             <AppContainer />

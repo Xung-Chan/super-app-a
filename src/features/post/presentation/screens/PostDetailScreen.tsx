@@ -1,3 +1,4 @@
+import { useRoute } from '@react-navigation/native';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import type { ListRenderItemInfo } from 'react-native';
 import {
@@ -13,14 +14,13 @@ import {
   View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useRoute } from '@react-navigation/native';
 
-import type { RouteProp } from '@react-navigation/native';
 import type { RootStackParamList } from '@navigation/navigation-types';
-import { MiniAppHeader } from '@superapp/shared-ui';
 import { CommentEntity } from '@post/domain/entities/CommentEntity';
-import { usePostDetailVM } from '../viewmodels/usePostDetailVM';
+import type { RouteProp } from '@react-navigation/native';
+import { MiniAppHeader } from '@superapp/shared-ui';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import { usePostDetailVM } from '../viewmodels/usePostDetailVM';
 
 type PostDetailRoute = RouteProp<RootStackParamList, 'PostDetailScreen'>;
 
