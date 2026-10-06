@@ -52,7 +52,6 @@ const buildRoutes = (
   return target.name === ROOT_SCREEN ? [home] : [home, target];
 };
 
-// Cold Start: dựng sẵn ngăn xếp ban đầu để tránh chớp màn hình
 const buildInitialState = (path?: string): InitialState | undefined => {
   if (!path) return undefined;
   const target = getTargetRoute(path);
@@ -69,11 +68,11 @@ interface AppContainerProps {
 const AppContainer = ({ initialRoute, onExitMiniApp }: AppContainerProps) => {
   const navRef = useRef<NavigationContainerRef<RootStackParamList>>(null);
 
-  // Cold Start: dựng sẵn ngăn xếp ngay từ lần render đầu
+  // Cold Start
   const [initialState] = useState(() => buildInitialState(initialRoute));
   const handledPath = useRef(initialRoute);
 
-  // Warm Start: Host đổi prop -> Soft Navigation, không unmount Mini App
+  // Warm Start
   useEffect(() => {
     if (!initialRoute || initialRoute === handledPath.current) return;
     if (!navRef.current?.isReady()) return;
@@ -94,7 +93,6 @@ const AppContainer = ({ initialRoute, onExitMiniApp }: AppContainerProps) => {
     });
   }, [initialRoute]);
 
-  // Hardware Back (Android): pop nội bộ trước, hết màn hình mới gọi Host đóng container
   useEffect(() => {
     const subscription = BackHandler.addEventListener(
       'hardwareBackPress',
