@@ -21,7 +21,7 @@ export const usePostVM = () => {
     }, [fetchPosts]);
 
     const onPressPost = useCallback((postId: number) => {
-        navigation.navigate('PostDetailScreen', { id: postId });
+        navigation.navigate('PostDetailScreen', { id: String(postId) });
     }, [navigation]);
 
     const searchByUserId = useCallback((userId: number) => {

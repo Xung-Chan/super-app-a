@@ -10,7 +10,7 @@ import {
     selectPostLoading 
 } from "../state/post.slice";
 
-export const usePostDetailVM = (postId: number) => {
+export const usePostDetailVM = (postId: string | number) => {
     const dispatch = useDispatch();
 
     const loading = useSelector(selectPostLoading);
@@ -18,25 +18,27 @@ export const usePostDetailVM = (postId: number) => {
     const listComment = useSelector(selectComments);
     const post = useSelector(selectPost);
 
+    const numericPostId = Number(postId);
+
     const fetchCommentsAndDetail = useCallback(() => {
-        if (!postId) return;
-        dispatch(getPostDetailRequested({ id: postId }));
-        dispatch(getCommentsRequested({ postId }));
-    }, [dispatch, postId]);
+        if (!numericPostId) return;
+        dispatch(getPostDetailRequested({ id: numericPostId }));
+        dispatch(getCommentsRequested({ postId: numericPostId }));
+    }, [dispatch, numericPostId]);
 
     useEffect(() => {
         fetchCommentsAndDetail();
     }, [fetchCommentsAndDetail]);
 
     const handleCreateComment = useCallback((body: string) => {
-        if (!postId) return;
+        if (!numericPostId) return;
         dispatch(createCommentRequested({
-            postId,
+            postId: numericPostId,
             name: "User Me",
             email: "me@example.com",
             body,
         }));
-    }, [dispatch, postId]);
+    }, [dispatch, numericPostId]);
 
     return {
         listComment,

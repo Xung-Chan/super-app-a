@@ -30,7 +30,7 @@ export const PostDetailScreen = () => {
   const insets = useSafeAreaInsets();
   const inputRef = useRef<TextInput>(null);
 
-  const { listComment, loading, error, post, handleCreateComment } = usePostDetailVM(Number(id));
+  const { listComment, loading, error, post, handleCreateComment } = usePostDetailVM(id);
   const [commentText, setCommentText] = useState('');
   const [replyingTo, setReplyingTo] = useState<CommentEntity | null>(null);
   const [isKeyboardVisible, setKeyboardVisible] = useState(false);
