@@ -4,10 +4,10 @@
  * Exposed via Module Federation as `mini_app_a/App`.
  *
  * Rules for federated mini-apps:
- *  - NO NavigationContainer   → Host App owns the top-level navigator.
+ *  - NavigationContainer is `independent` → Mini App owns its own navigation tree,
+ *    no conflict with the Host App's RootNavigator.
  *  - NO SafeAreaProvider      → Host App already provides it.
  *  - NO AppRegistry           → Done in index.js (standalone dev only).
- *  - Export a plain Stack.Navigator so Host App can nest it as a screen.
  */
 
 import { Provider } from 'react-redux';
@@ -17,13 +17,14 @@ import { testDeeplink } from './src/testDeeplink';
 
 export interface MiniAppAProps {
   initialRoute?: string;
+  onExitMiniApp?: () => void;
 }
 
-const App = ({ initialRoute }: MiniAppAProps) => {
+const App = ({ initialRoute, onExitMiniApp }: MiniAppAProps) => {
     testDeeplink();
     return (
         <Provider store={store}>
-            <AppContainer initialRoute={initialRoute} />
+            <AppContainer initialRoute={initialRoute} onExitMiniApp={onExitMiniApp} />
         </Provider>
     );
 };
