@@ -1,61 +1,26 @@
 import { PostDetailScreen } from '@post/presentation/screens/PostDetailScreen';
 import { PostManagementScreen } from '@post/presentation/screens/PostManagementScreen';
 import {
-  getStateFromPath,
-  InitialState,
+  LinkingOptions,
   NavigationContainer,
   NavigationContainerRef,
   NavigationIndependentTree,
 } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 import { BackHandler } from 'react-native';
 import { RootStackParamList } from './navigation-types';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 const ROOT_SCREEN = 'PostManagementScreen';
-const LINKING_CONFIG = {
+
+const LINKING_CONFIG: LinkingOptions<RootStackParamList>['config'] = {
+  initialRouteName: ROOT_SCREEN,
   screens: {
     PostManagementScreen: '',
     PostDetailScreen: 'post/:id',
   },
-};
-
-type TargetRoute = {
-  name: keyof RootStackParamList;
-  params?: object;
-};
-
-const getTargetRoute = (path: string): TargetRoute | undefined => {
-  const state = getStateFromPath(path, LINKING_CONFIG);
-  const target = state?.routes[state.routes.length - 1];
-
-  if (!target || !(target.name in LINKING_CONFIG.screens)) {
-    return undefined;
-  }
-
-  return {
-    name: target.name as keyof RootStackParamList,
-    params: target.params,
-  };
-};
-
-const buildRoutes = (
-  target: TargetRoute,
-  currentHome?: { key?: string; params?: object },
-) => {
-  const home = currentHome
-    ? { key: currentHome.key, name: ROOT_SCREEN, params: currentHome.params }
-    : { name: ROOT_SCREEN };
-
-  return target.name === ROOT_SCREEN ? [home] : [home, target];
-};
-
-const buildInitialState = (path?: string): InitialState | undefined => {
-  if (!path) return undefined;
-  const target = getTargetRoute(path);
-  return target ? { routes: buildRoutes(target) } : undefined;
 };
 
 interface AppContainerProps {
@@ -67,31 +32,38 @@ interface AppContainerProps {
 
 const AppContainer = ({ initialRoute, onExitMiniApp }: AppContainerProps) => {
   const navRef = useRef<NavigationContainerRef<RootStackParamList>>(null);
+  const routeListenerRef = useRef<((url: string) => void) | null>(null);
+  const handledRouteRef = useRef<string | undefined>(initialRoute);
 
-  // Cold Start
-  const [initialState] = useState(() => buildInitialState(initialRoute));
-  const handledPath = useRef(initialRoute);
-
-  // Warm Start
+  // Warm Start: Khi Host App truyền initialRoute mới vào lúc Mini App đang mở
   useEffect(() => {
-    if (!initialRoute || initialRoute === handledPath.current) return;
-    if (!navRef.current?.isReady()) return;
-
-    handledPath.current = initialRoute;
-
-    const target = getTargetRoute(initialRoute);
-    if (!target) return;
-
-    const currentHome = navRef.current
-      .getRootState()
-      ?.routes.find(r => r.name === ROOT_SCREEN);
-    const routes = buildRoutes(target, currentHome);
-
-    navRef.current.resetRoot({
-      index: routes.length - 1,
-      routes,
-    });
+    if (
+      initialRoute &&
+      initialRoute !== handledRouteRef.current &&
+      routeListenerRef.current
+    ) {
+      handledRouteRef.current = initialRoute;
+      routeListenerRef.current(initialRoute);
+    }
   }, [initialRoute]);
+
+  // Cấu hình LinkingOptions chính thống cho NavigationContainer
+  const linking = useMemo<LinkingOptions<RootStackParamList>>(
+    () => ({
+      prefixes: ['/'],
+      config: LINKING_CONFIG,
+      // Cold start: lấy đường dẫn từ prop initialRoute ban đầu
+      getInitialURL: () => initialRoute ?? null,
+      // Warm start: đăng ký listener để nhận URL khi prop initialRoute thay đổi
+      subscribe: (listener: (url: string) => void) => {
+        routeListenerRef.current = listener;
+        return () => {
+          routeListenerRef.current = null;
+        };
+      },
+    }),
+    [],
+  );
 
   useEffect(() => {
     const subscription = BackHandler.addEventListener(
@@ -114,7 +86,7 @@ const AppContainer = ({ initialRoute, onExitMiniApp }: AppContainerProps) => {
 
   return (
     <NavigationIndependentTree>
-      <NavigationContainer ref={navRef} initialState={initialState}>
+      <NavigationContainer ref={navRef} linking={linking}>
         <Stack.Navigator
           initialRouteName={ROOT_SCREEN}
           screenOptions={{ headerShown: false }}
@@ -131,3 +103,4 @@ const AppContainer = ({ initialRoute, onExitMiniApp }: AppContainerProps) => {
 };
 
 export default AppContainer;
+

@@ -1,4 +1,4 @@
-import { NavigationProp, useNavigation } from "@react-navigation/native";
+import { NavigationProp, NavigationRoute, RouteProp, useNavigation, useRoute } from "@react-navigation/native";
 import { RootStackParamList } from "@navigation/navigation-types";
 import { useDispatch, useSelector } from "react-redux";
 import { filterByUserId, getListPostRequested, selectPostError, selectPostList, selectPostLoading } from "../state/post.slice";
@@ -7,7 +7,7 @@ import { useCallback, useEffect } from "react";
 export const usePostVM = () => {
     const dispatch = useDispatch();
     const navigation = useNavigation<NavigationProp<RootStackParamList>>();
-
+    const route = useRoute<RouteProp<RootStackParamList, 'PostDetailScreen'>>()
     const listPost = useSelector(selectPostList);
     const loading = useSelector(selectPostLoading);
     const error = useSelector(selectPostError);
